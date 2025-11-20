@@ -1,13 +1,20 @@
-// eslint.config.mjs
+/* eslint.config.mjs */
 import js from '@eslint/js';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
 export default [
   js.configs.recommended,
-
-  // TypeScript support
   ...tseslint.configs.recommended,
+
+  // Ignore Astro's generated types and config files
+  {
+    ignores: [
+      '.astro/**/*',
+      'dist/**/*',
+      'node_modules/**/*'
+    ],
+  },
 
   {
     files: ['**/*.ts', '**/*.tsx'],
@@ -20,13 +27,14 @@ export default [
       },
     },
     rules: {
-      // Example custom rules for TS
       '@typescript-eslint/no-unused-vars': ['warn'],
       '@typescript-eslint/explicit-function-return-type': 'off',
+      '@typescript-eslint/triple-slash-reference': 'off', // Astro may generate triple-slash refs
+      '@typescript-eslint/no-explicit-any': 'off', // allow in generated or dev code
+      '@typescript-eslint/no-empty-object-type': 'off',
     },
   },
 
-  // JS files config (same as before)
   {
     files: ['**/*.js', '**/*.jsx'],
     languageOptions: {
@@ -41,6 +49,22 @@ export default [
       'no-unused-vars': 'warn',
       'no-console': 'off',
       'eqeqeq': ['error', 'always'],
+    },
+  },
+
+  // Loosen for Astro inline scripts
+  {
+    files: ['**/*.astro'],
+    languageOptions: {
+      globals: {
+        ...globals.browser,
+      },
+    },
+    rules: {
+      // Disable TS-specific lint rules inside Astro files
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-empty-object-type': 'off',
+      '@typescript-eslint/triple-slash-reference': 'off',
     },
   },
 ];

@@ -1,11 +1,152 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
+import Layout from "../layouts/Layout.astro";
+import SearchBar from "../components/SearchBar.astro";
+import RecipeCard from "../components/RecipeCard.astro";
+import { getMockRecipes } from "../data/recipes";
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+const recipes = getMockRecipes();
 ---
 
 <Layout>
-	<Welcome />
+  <section class="hero">
+    <div class="copy">
+      <h1>Find your next favorite recipe</h1>
+      <p class="sub">Search by name, ingredient, or tag. Bon appétit!</p>
+    </div>
+    <SearchBar />
+  </section>
+
+  <section class="grid" id="recipes-grid">
+    {recipes.map((r) => (
+      <RecipeCard
+        href={`/recipe/${r.id}`}
+        title={r.title}
+        description={r.description}
+        image={r.image}
+        time={r.time}
+        difficulty={r.difficulty}
+        tags={r.tags}
+      />
+    ))}
+  </section>
+
+  <p id="empty" class="empty" style="display:none;">No recipes match your search.</p>
 </Layout>
+
+<style>
+  .hero {
+    display: grid;
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+  .copy h1 {
+    margin: 0;
+    font-size: 28px;
+    background: linear-gradient(120deg, color-mix(in oklab, var(--color-primary) 75%, #60a5fa), color-mix(in oklab, var(--color-secondary) 50%, #fde68a));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .copy .sub { margin: 4px 0 0; color: var(--text-secondary); }
+
+  .grid {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+  @media (min-width: 640px) {
+    .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (min-width: 980px) {
+    .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+
+  .empty {
+    margin-top: 16px;
+    color: var(--text-secondary);
+  }
+</style>
+
+<script>
+  // Basic client-side filtering using mock data rendered into the page
+  /**
+   * @typedef {Object} Recipe
+   * @property {string} id
+   * @property {string} title
+   * @property {string} description
+   * @property {string} image
+   * @property {string} cuisine
+   * @property {string} time
+   * @property {number} servings
+   * @property {"Easy"|"Medium"|"Hard"} difficulty
+   * @property {string[]} tags
+   * @property {string[]} ingredients
+   * @property {string[]} steps
+   */
+
+  function collectRecipes() {
+    const script = document.getElementById('__recipes__') as HTMLScriptElement | null;
+    if (!script?.textContent) return [];
+    try {
+      return JSON.parse(script.textContent) as Recipe[];
+    } catch {
+      return [];
+    }
+  }
+
+  function filterRecipes(query: string, all: Recipe[]): Recipe[] {
+    const q = query.trim().toLowerCase();
+    if (!q) return all;
+    return all.filter(r => {
+      const inTitle = r.title.toLowerCase().includes(q);
+      const inDesc = r.description.toLowerCase().includes(q);
+      const inTags = (r.tags || []).some(t => t.toLowerCase().includes(q));
+      const inIngredients = (r.ingredients || []).some(i => i.toLowerCase().includes(q));
+      return inTitle || inDesc || inTags || inIngredients;
+    });
+  }
+
+  function render(recipes: Recipe[]) {
+    const grid = document.getElementById('recipes-grid');
+    const empty = document.getElementById('empty');
+    if (!grid || !empty) return;
+
+    // Re-render cards
+    if (recipes.length === 0) {
+      grid.innerHTML = '';
+      empty.style.display = 'block';
+      return;
+    }
+    empty.style.display = 'none';
+    grid.innerHTML = recipes.map(r => `
+      <a class="card" href="/recipe/${r.id}">
+        <div class="thumb">
+          <img src="${r.image}" alt="${r.title}" loading="lazy" />
+          <div class="chip time">⏱ ${r.time}</div>
+          <div class="chip diff">${r.difficulty}</div>
+        </div>
+        <div class="body">
+          <h3 class="title">${r.title}</h3>
+          <p class="desc">${r.description}</p>
+          ${r.tags && r.tags.length ? `<div class="tags">${r.tags.slice(0,3).map(t => `<span class="tag">${t}</span>`).join('')}</div>` : ""}
+        </div>
+      </a>
+    `).join('');
+  }
+
+  function attachSearch(all: Recipe[]) {
+    window.addEventListener('recipe:search', (e: CustomEvent) => {
+      const value = (e.detail?.value ?? '') as string;
+      render(filterRecipes(value, all));
+    });
+  }
+
+  // Hydrate: embed data, init handlers
+  (function init() {
+    const data = collectRecipes();
+    attachSearch(data);
+  })();
+</script>
+
+<!-- Embed mock data for client side filtering without extra requests -->
+<script id="__recipes__" type="application/json">{JSON.stringify(recipes)}</script>

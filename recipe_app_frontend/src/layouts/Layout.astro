@@ -1,54 +1,90 @@
 ---
-import ThemeToggle from '../components/ThemeToggle.astro';
+import ThemeToggle from "../components/ThemeToggle.astro";
+import Header from "../components/Header.astro";
+
+// Wire PUBLIC_* envs with safe defaults (do not require .env yet)
+const API_BASE = import.meta.env.PUBLIC_API_BASE || "";
+const BACKEND_URL = import.meta.env.PUBLIC_BACKEND_URL || "";
 ---
 
 <!doctype html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
-	</head>
-	<body>
-		<ThemeToggle />
-		<slot />
-	</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <title>Recipe Explorer</title>
+    <meta name="description" content="Browse, search, and view recipes." />
+  </head>
+  <body>
+    <ThemeToggle />
+    <Header />
+    <main class="page">
+      <slot />
+    </main>
+    <footer class="footer">
+      <p>© {new Date().getFullYear()} Recipe Explorer</p>
+      <p class="env">API_BASE: {API_BASE || "n/a"} | BACKEND_URL: {BACKEND_URL || "n/a"}</p>
+    </footer>
+  </body>
 </html>
 
 <style>
-	:root {
-		/* Light theme variables */
-		--bg-color: #ffffff;
-		--text-color: #111827;
-		--text-secondary: #4b5563;
-		--border-color: rgba(0, 0, 0, 0.1);
-		--card-bg: rgba(255, 255, 255, 1);
-		--card-hover-bg: rgba(255, 255, 255, 0.55);
-		--shadow-color: rgba(0, 0, 0, 0.1);
-		--shadow-hover-color: rgba(0, 0, 0, 0.15);
-	}
+  :root {
+    /* Ocean Professional Theme Tokens */
+    --color-primary: #2563EB;
+    --color-secondary: #F59E0B;
+    --color-error: #EF4444;
 
-	body.dark-theme {
-		/* Dark theme variables */
-		--bg-color: #111827;
-		--text-color: #f9fafb;
-		--text-secondary: #d1d5db;
-		--border-color: rgba(255, 255, 255, 0.2);
-		--card-bg: rgba(31, 41, 55, 0.9);
-		--card-hover-bg: rgba(31, 41, 55, 0.7);
-		--shadow-color: rgba(0, 0, 0, 0.3);
-		--shadow-hover-color: rgba(0, 0, 0, 0.4);
-	}
+    --bg: #f9fafb;
+    --surface: #ffffff;
+    --surface-elev: #f8fafc;
 
-	html,
-	body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
-		background-color: var(--bg-color);
-		color: var(--text-color);
-		transition: background-color 0.3s ease, color 0.3s ease;
-	}
+    --text: #111827;
+    --text-secondary: #4b5563;
+    --text-muted: #6b7280;
+
+    --border-color: rgba(17, 24, 39, 0.08);
+    --shadow-color: rgba(17, 24, 39, 0.06);
+    --shadow-hover-color: rgba(17, 24, 39, 0.10);
+  }
+
+  body.dark-theme {
+    --bg: #0f172a;
+    --surface: #0b1220;
+    --surface-elev: #101827;
+
+    --text: #e5e7eb;
+    --text-secondary: #cbd5e1;
+    --text-muted: #94a3b8;
+
+    --border-color: rgba(148, 163, 184, 0.2);
+    --shadow-color: rgba(2, 6, 23, 0.3);
+    --shadow-hover-color: rgba(2, 6, 23, 0.45);
+  }
+
+  html, body {
+    margin: 0;
+    min-height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    transition: background-color .3s ease, color .3s ease;
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  }
+
+  .page {
+    max-width: 1100px;
+    margin: 24px auto;
+    padding: 0 16px;
+  }
+
+  .footer {
+    border-top: 1px solid var(--border-color);
+    padding: 20px 16px 40px;
+    max-width: 1100px;
+    margin: 0 auto;
+    color: var(--text-secondary);
+  }
+  .footer .env { font-size: 12px; color: var(--text-muted); }
 </style>

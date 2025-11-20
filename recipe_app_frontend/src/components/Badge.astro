@@ -1,0 +1,25 @@
+---
+export interface Props {
+  label: string;
+  tone?: "primary" | "secondary" | "neutral";
+}
+const { label, tone = "neutral" } = Astro.props as Props;
+---
+
+<span class={`badge ${tone}`}>{label}</span>
+
+<style>
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 9999px;
+    font-size: 12px;
+    line-height: 1;
+    border: 1px solid var(--border-color);
+    color: var(--text);
+    background: var(--surface-elev);
+  }
+  .badge.primary { color: var(--color-primary); border-color: color-mix(in oklab, var(--color-primary) 50%, var(--border-color)); }
+  .badge.secondary { color: var(--color-secondary); border-color: color-mix(in oklab, var(--color-secondary) 50%, var(--border-color)); }
+</style>

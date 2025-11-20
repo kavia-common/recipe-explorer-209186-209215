@@ -1,47 +1,44 @@
-# Astro Starter Kit: Minimal
+# Recipe Explorer (Astro Frontend)
 
-```sh
-npm create astro@latest -- --template minimal
-```
+Modern Astro frontend for browsing, searching, and viewing recipes.
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/minimal)
-[![Open with CodeSandbox](https://assets.codesandbox.io/github/button-edit-lime.svg)](https://codesandbox.io/p/sandbox/github/withastro/astro/tree/latest/examples/minimal)
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/withastro/astro?devcontainer_path=.devcontainer/minimal/devcontainer.json)
+- Theme: Ocean Professional (Primary #2563EB, Secondary #F59E0B)
+- Runs on port 3000 out of the box
+- No external services required; uses local mock data
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## Quick start
 
-## 🚀 Project Structure
+1) Install dependencies
+   npm install
 
-Inside of your Astro project, you'll see the following folders and files:
+2) Run in dev mode (http://localhost:3000)
+   npm run dev
 
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
-```
+3) Build / Preview
+   npm run build
+   npm run preview
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+## Features
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+- Header with branding and dark/light toggle
+- Home page with search bar
+- Responsive recipe grid loaded from mock data
+- Client-side search/filtering (no server calls)
+- Recipe detail page at /recipe/[id]
+- Environment variables respected but optional:
+  - PUBLIC_API_BASE
+  - PUBLIC_BACKEND_URL
 
-Any static assets, like images, can be placed in the `public/` directory.
+## Structure
 
-## 🧞 Commands
+- src/layouts/Layout.astro: Base layout, theme tokens, header, env wiring
+- src/pages/index.astro: Home/search + grid
+- src/pages/recipe/[id].astro: Recipe detail
+- src/components/: UI components (Header, SearchBar, RecipeCard, Badge, ThemeToggle)
+- src/data/recipes.ts: Mock recipe data
+- public/assets: Sample images
 
-All commands are run from the root of the project, from a terminal:
+## Notes
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+- If the sample images do not render in your environment (e.g., binary files stripped), replace the placeholders under public/assets with any images using the same file names.
+- The UI falls back gracefully when PUBLIC_* envs are not set.

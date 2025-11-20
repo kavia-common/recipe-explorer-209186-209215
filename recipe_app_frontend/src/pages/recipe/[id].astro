@@ -1,0 +1,114 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import Badge from "../../components/Badge.astro";
+import { findRecipeById, getMockRecipes } from "../../data/recipes";
+
+export const prerender = true;
+
+// PUBLIC_INTERFACE
+export async function getStaticPaths() {
+  /** Generate static paths for all mock recipes so dynamic pages can build. */
+  const list = getMockRecipes();
+  return list.map((r) => ({ params: { id: r.id } }));
+}
+
+const { id } = Astro.params;
+const recipe = id ? findRecipeById(id) : undefined;
+---
+
+<Layout>
+  {recipe ? (
+    <article class="page">
+      <a class="back" href="/">← Back to recipes</a>
+      <header class="hero">
+        <h1>{recipe.title}</h1>
+        <div class="meta">
+          <span class="pill">⏱ {recipe.time}</span>
+          <span class="pill">{recipe.difficulty}</span>
+          <span class="pill">Serves {recipe.servings}</span>
+        </div>
+      </header>
+
+      <figure class="cover">
+        <img src={recipe.image} alt={recipe.title} />
+      </figure>
+
+      <section class="content">
+        <div class="ingredients box">
+          <h2>Ingredients</h2>
+          <ul>
+            {recipe.ingredients.map((i) => <li>{i}</li>)}
+          </ul>
+        </div>
+
+        <div class="steps box">
+          <h2>Steps</h2>
+          <ol>
+            {recipe.steps.map((s) => <li>{s}</li>)}
+          </ol>
+        </div>
+      </section>
+
+      {recipe.tags.length > 0 && (
+        <section class="tags">
+          {recipe.tags.map((t) => <Badge label={t} />)}
+        </section>
+      )}
+    </article>
+  ) : (
+    <section class="not-found">
+      <h1>Recipe not found</h1>
+      <p>We couldn't find that recipe. Try searching from the home page.</p>
+      <a class="back" href="/">← Back to recipes</a>
+    </section>
+  )}
+</Layout>
+
+<style>
+  .back {
+    display: inline-block;
+    text-decoration: none;
+    margin: 4px 0 8px;
+    color: var(--text);
+    border-radius: 8px;
+    padding: 6px 8px;
+    transition: background-color .2s ease;
+  }
+  .back:hover { background: var(--surface-elev); }
+
+  .hero h1 {
+    margin: 8px 0;
+    font-size: 28px;
+    background: linear-gradient(120deg, color-mix(in oklab, var(--color-primary) 75%, #60a5fa), color-mix(in oklab, var(--color-secondary) 50%, #fde68a));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .meta { display: flex; gap: 8px; flex-wrap: wrap; }
+  .pill {
+    font-size: 12px; color: var(--text);
+    background: var(--surface-elev);
+    border: 1px solid var(--border-color);
+    border-radius: 999px; padding: 4px 10px;
+  }
+
+  .cover { margin: 14px 0 18px; border-radius: 16px; overflow: hidden; box-shadow: 0 6px 16px var(--shadow-color); border: 1px solid var(--border-color); }
+  .cover img { width: 100%; display: block; object-fit: cover; max-height: 420px; }
+
+  .content { display: grid; gap: 16px; grid-template-columns: 1fr; }
+  @media (min-width: 920px) { .content { grid-template-columns: 1fr 2fr; } }
+
+  .box {
+    background: var(--surface);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 14px;
+    box-shadow: 0 6px 16px var(--shadow-color);
+  }
+  h2 { margin-top: 0; color: var(--text); }
+  ul, ol { margin: 0; padding-left: 18px; }
+  li { color: var(--text-secondary); margin: 6px 0; }
+
+  .tags { margin-top: 16px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .not-found { text-align: center; padding: 32px 0; }
+</style>
